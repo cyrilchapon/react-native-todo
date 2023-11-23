@@ -1,18 +1,12 @@
 import { StatusBar } from "expo-status-bar";
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { TaskList } from "./components/task-list";
 import { Header } from "./components/header";
 import { TaskAdderBar } from "./components/task-adder-bar";
-import { PaperProvider, Surface } from "react-native-paper";
-import { useAtom } from "jotai";
-import { settingsAtom } from "./state/settings";
-import { SearchBar } from "./components/search-bar";
-import { Menu } from "./components/menu";
+import { PaperProvider } from "react-native-paper";
+import { SearchBarContainer } from "./components/search-bar-container";
 
 const App = () => {
-  const [{ searching, menuOpen }] = useAtom(settingsAtom);
-
   return (
     <PaperProvider>
       <Header />
@@ -22,7 +16,7 @@ const App = () => {
         style={styles.subContainer}
       >
         <View style={styles.taskView}>
-          {searching ? <SearchBar /> : null}
+          <SearchBarContainer />
 
           <TaskList />
 

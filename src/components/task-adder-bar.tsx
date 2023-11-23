@@ -1,68 +1,55 @@
 import { FunctionComponent, useState } from "react";
 import { StyleSheet } from "react-native";
 import { useAtom } from "jotai";
-import { v4 as uuidv4 } from "uuid";
 import { tasksSplitAtom } from "../state/todo-tasks";
-import {
-  IconButton,
-  MD3Colors,
-  Surface,
-  SurfaceProps,
-  TextInput,
-  useTheme,
-} from "react-native-paper";
+import { IconButton, MD3Colors, SurfaceProps } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ViewBar, { ViewBarProps } from "./view-bar";
+import { v4 as uuidv4 } from 'uuid'
+import useKeyboard from '@rnhooks/keyboard'
 
-export type TaskAdderBarProps = Omit<SurfaceProps, "children">;
+export type TaskAdderBarProps = Omit<ViewBarProps, 'value' | 'onChangeText'>;
 
 export const TaskAdderBar: FunctionComponent<TaskAdderBarProps> = (props) => {
   const { style, ...restProps } = props;
   const [value, setValue] = useState("");
   const [, dispatch] = useAtom(tasksSplitAtom);
 
-  const { bottom } = useSafeAreaInsets()
+  const { bottom } = useSafeAreaInsets();
+  const [keyboardVisible] = useKeyboard({
+    useWillShow: true,
+    useWillHide: true,
+  })
 
   return (
-    <Surface {...restProps} style={[style, styles.taskAdderBar, { paddingBottom: bottom }]}>
-      <TextInput
-        value={value}
-        onChangeText={setValue}
-        mode="outlined"
-        style={styles.taskAdderInput}
-        placeholder="Save the world"
-      />
-
-      <IconButton
-        icon="plus"
-        iconColor={MD3Colors.primary50}
-        size={30}
-        onPress={() => {
-          dispatch({
-            type: "insert",
-            value: {
-              id: uuidv4(),
-              createdAt: new Date(Date.now()),
-              doneAt: null,
-              title: value,
-            },
-          });
-          setValue("");
-        }}
-      />
-    </Surface>
-  )
+    <ViewBar
+      // icon={() => null}
+      right={() => (
+        <IconButton
+          icon={"plus"}
+          iconColor={MD3Colors.primary50}
+          onPress={() => {
+            dispatch({
+              type: "insert",
+              value: {
+                id: uuidv4(),
+                createdAt: new Date(Date.now()),
+                doneAt: null,
+                title: value,
+              },
+            });
+            setValue("");
+          }}
+          disabled={!value}
+        />
+      )}
+      // inputStyle={{ paddingLeft: 0, marginLeft: 0 }}
+      // style={{ paddingLeft: 0, marginLeft: 0 }}
+      value={value}
+      onChangeText={setValue}
+      placeholder="Save the world"
+      showDivider={false}
+      style={{ paddingBottom: !keyboardVisible ? bottom : null }}
+    />
+  );
 };
-
-const styles = StyleSheet.create({
-  taskAdderBar: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  taskAdderInput: {
-    flex: 1,
-    marginVertical: 10,
-    marginLeft: 10,
-  },
-});
